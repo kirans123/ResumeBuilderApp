@@ -30,6 +30,10 @@ class ResumeModel {
   final String totalYearsOfExperience;
   final String? pasportNo;
   final String maritalStatus;
+  final String profile;
+  final String address;
+  final String email;
+  final String aboutMe;
 
   /*final List<String> expertise;
   final List<PastExperinceList> passExperinceList;
@@ -44,6 +48,10 @@ class ResumeModel {
     required this.totalYearsOfExperience,
     required this.pasportNo,
     required this.maritalStatus,
+    required this.profile,
+    required this.address,
+    required this.email,
+    required this.aboutMe,
     //required this.expertise,
     // required this.passExperinceList,
     // required this.projectsExecuted,
@@ -59,6 +67,10 @@ class ResumeModel {
       totalYearsOfExperience: map['totalYearsOfExperience'],
       pasportNo: map['pasportNo'],
       maritalStatus: map['maritalStatus'],
+      profile: map['profile'],
+      address: map['address'],
+      email: map['email'],
+      aboutMe: map['aboutMe'],
       /* expertise: map['expertise'].map<String>((value) {
         return value.toString();
       }).toList(),
@@ -81,6 +93,10 @@ class ResumeModel {
       ResumeDatabaseHelper.totalYearsOfExperience: totalYearsOfExperience,
       ResumeDatabaseHelper.pasportNo: pasportNo,
       ResumeDatabaseHelper.maritalStatus: maritalStatus,
+      ResumeDatabaseHelper.profile: profile,
+      ResumeDatabaseHelper.address: address,
+      ResumeDatabaseHelper.email: email,
+      ResumeDatabaseHelper.aboutMe: aboutMe
       //DatabaseHelper.expertise: expertise,
       //DatabaseHelper.maritalStatus: maritalStatus,
     };

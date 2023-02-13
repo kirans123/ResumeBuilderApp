@@ -27,6 +27,11 @@ class _ResumePageState extends State<ResumePage> {
   TextEditingController passportNumberController = TextEditingController();
   TextEditingController maritalStatusController = TextEditingController();
 
+  TextEditingController profileController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController aboutMeController = TextEditingController();
+
   //controllers used in update operation UI
   TextEditingController idUpdateController = TextEditingController();
   TextEditingController nameUpdateController = TextEditingController();
@@ -42,9 +47,12 @@ class _ResumePageState extends State<ResumePage> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   void _showMessageInScaffold(String message) {
-    /* _scaffoldKey.currentState?.showSnackBar(SnackBar(
+    /*  _scaffoldKey.currentState?.showSnackBar(SnackBar(
       content: Text(message),
     ));*/
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
     print("RECEIVED MESSAGE --> $message");
   }
 
@@ -87,6 +95,10 @@ class _ResumePageState extends State<ResumePage> {
                       setTextField("First name", fnameController),
                       setTextField("Last name", lnameController),
                       setTextField("Mobile Number", mobileController),
+                      setTextField("Profile", profileController),
+                      setTextField("Address", addressController),
+                      setTextField("Email", emailController),
+                      setTextField("About Me", aboutMeController),
                       setTextField("Age", ageController),
                       setTextField(
                           "Total No. of Experience", totalYearsController),
@@ -106,7 +118,10 @@ class _ResumePageState extends State<ResumePage> {
                 ),
               ),
             ),
-            Container(
+            ViewProfile(
+              resumeModelList: resumeModelList,
+            ),
+            /*Container(
               child: ListView.builder(
                 padding: const EdgeInsets.all(8),
                 itemCount: resumeModelList.length + 1,
@@ -121,7 +136,9 @@ class _ResumePageState extends State<ResumePage> {
                       },
                     );
                   }
-                  return ViewProfile();
+                  return ViewProfile(
+                    resumeModelList: resumeModelList,
+                  );
                   /*Container(
                     height: 40,
                     child: Center(
@@ -133,7 +150,7 @@ class _ResumePageState extends State<ResumePage> {
                   );*/
                 },
               ),
-            ),
+            ),*/
             Center(
               child: Column(
                 children: <Widget>[
@@ -265,6 +282,10 @@ class _ResumePageState extends State<ResumePage> {
       ResumeDatabaseHelper.totalYearsOfExperience: totalYearsController.text,
       ResumeDatabaseHelper.pasportNo: passportNumberController.text,
       ResumeDatabaseHelper.maritalStatus: maritalStatusController.text,
+      ResumeDatabaseHelper.profile: profileController.text,
+      ResumeDatabaseHelper.address: addressController.text,
+      ResumeDatabaseHelper.email: emailController.text,
+      ResumeDatabaseHelper.aboutMe: aboutMeController.text,
     };
     ResumeModel resumeModel = ResumeModel.fromMap(row);
     // print(car);
@@ -308,12 +329,19 @@ class _ResumePageState extends State<ResumePage> {
           border: OutlineInputBorder(),
           labelText: caption,
         ),
-        /* validator: (value) {
+        validator: (value) {
           if (value == "") {
             return "$caption should not be empty";
           }
-        },*/
+        },
       ),
+    );
+  }
+
+  Widget getView() {
+    _queryAll();
+    return ViewProfile(
+      resumeModelList: resumeModelList,
     );
   }
 }

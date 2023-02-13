@@ -5,7 +5,7 @@ import 'package:sqflite/sqflite.dart';
 
 class ResumeDatabaseHelper {
   static final _resumeDatabaseName = "resumedb.db";
-  static final _databaseVersion = 3;
+  static final _databaseVersion = 4;
 
   static final resumeTable = 'resume_table';
 
@@ -17,6 +17,10 @@ class ResumeDatabaseHelper {
   static final totalYearsOfExperience = 'totalYearsOfExperience';
   static final pasportNo = 'pasportNo';
   static final maritalStatus = 'maritalStatus';
+  static final profile = 'profile';
+  static final address = 'address';
+  static final email = 'email';
+  static final aboutMe = 'aboutMe';
 
   static final companyName = 'companyName';
   static final fromDate = 'fromDate';
@@ -58,7 +62,11 @@ class ResumeDatabaseHelper {
             $age INTEGER NOT NULL,
             $totalYearsOfExperience TEXT NOT NULL,
             $pasportNo TEXT NOT NULL,
-            $maritalStatus TEXT NOT NULL
+            $maritalStatus TEXT NOT NULL,
+            $profile TEXT NOT NULL,
+            $address TEXT NOT NULL,
+            $email TEXT NOT NULL,
+            $aboutMe TEXT NOT NULL
           )
           ''');
   }
@@ -78,6 +86,10 @@ class ResumeDatabaseHelper {
       totalYearsOfExperience: model.totalYearsOfExperience,
       pasportNo: model.pasportNo,
       maritalStatus: model.maritalStatus,
+      profile: model.profile,
+      address: model.address,
+      email: model.email,
+      aboutMe: model.aboutMe
     });
   }
 
