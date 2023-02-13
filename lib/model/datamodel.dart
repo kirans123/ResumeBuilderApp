@@ -1,3 +1,4 @@
+import '../resumedbhelper.dart';
 import 'dbhelper.dart';
 
 class Car {
@@ -24,25 +25,66 @@ class ResumeModel {
   int? id;
   final String fname;
   final String lname;
+  final String mobile;
   final int age;
   final String totalYearsOfExperience;
   final String? pasportNo;
   final String maritalStatus;
 
-  final List<String> expertise;
+  /*final List<String> expertise;
   final List<PastExperinceList> passExperinceList;
-  final List<String> projectsExecuted;
+  final List<Projects> projectsExecuted;*/
 
-  ResumeModel(
-      {required this.fname,
-      required this.lname,
-      required this.age,
-      required this.totalYearsOfExperience,
-      required this.pasportNo,
-      required this.maritalStatus,
-      required this.expertise,
-      required this.passExperinceList,
-      required this.projectsExecuted});
+  ResumeModel({
+    required this.id,
+    required this.fname,
+    required this.lname,
+    required this.mobile,
+    required this.age,
+    required this.totalYearsOfExperience,
+    required this.pasportNo,
+    required this.maritalStatus,
+    //required this.expertise,
+    // required this.passExperinceList,
+    // required this.projectsExecuted,
+  });
+
+  factory ResumeModel.fromMap(Map<String, dynamic> map) {
+    return ResumeModel(
+      id: map['id'],
+      fname: map['fname'],
+      lname: map['lname'],
+      mobile: map['mobile'],
+      age: map['age'],
+      totalYearsOfExperience: map['totalYearsOfExperience'],
+      pasportNo: map['pasportNo'],
+      maritalStatus: map['maritalStatus'],
+      /* expertise: map['expertise'].map<String>((value) {
+        return value.toString();
+      }).toList(),
+      passExperinceList:
+          map['passExperinceList'].map<PastExperinceList>((value) {
+        return PastExperinceList.fromMap(value);
+      }).toList(),
+      projectsExecuted: map['projectsExecuted'].map<Projects>((value) {
+        return Projects.fromMap(value);
+      }).toList(),*/
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      ResumeDatabaseHelper.columnId: id,
+      ResumeDatabaseHelper.fname: fname,
+      ResumeDatabaseHelper.lname: lname,
+      ResumeDatabaseHelper.age: age,
+      ResumeDatabaseHelper.totalYearsOfExperience: totalYearsOfExperience,
+      ResumeDatabaseHelper.pasportNo: pasportNo,
+      ResumeDatabaseHelper.maritalStatus: maritalStatus,
+      //DatabaseHelper.expertise: expertise,
+      //DatabaseHelper.maritalStatus: maritalStatus,
+    };
+  }
 }
 
 class PastExperinceList {
@@ -64,9 +106,33 @@ class PastExperinceList {
 
   Map<String, dynamic> toMap() {
     return {
-      DatabaseHelper.companyName: companyName,
-      DatabaseHelper.fromDate: fromDate,
-      DatabaseHelper.toDate: toDate,
+      ResumeDatabaseHelper.companyName: companyName,
+      ResumeDatabaseHelper.fromDate: fromDate,
+      ResumeDatabaseHelper.toDate: toDate,
+    };
+  }
+}
+
+class Projects {
+  final String projectName;
+  final String projectDetails;
+
+  Projects({
+    required this.projectName,
+    required this.projectDetails,
+  });
+
+  factory Projects.fromMap(Map<String, dynamic> map) {
+    return Projects(
+      projectName: map['projectName'],
+      projectDetails: map['projectDetails'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      ResumeDatabaseHelper.projectName: projectName,
+      ResumeDatabaseHelper.projectDetails: projectDetails,
     };
   }
 }

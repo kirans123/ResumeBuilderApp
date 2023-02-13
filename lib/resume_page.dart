@@ -1,37 +1,31 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:resume_builder_app/model/datamodel.dart';
-import 'package:resume_builder_app/model/dbhelper.dart';
-import 'package:resume_builder_app/resume_page.dart';
+import 'package:resume_builder_app/model/view_resume.dart';
+import 'package:resume_builder_app/resumedbhelper.dart';
+import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
+class ResumePage extends StatefulWidget {
+  const ResumePage({super.key});
 
-class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'TutorialKart - Flutter',
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-      ),
-      home: ResumePage(),
-    );
-  }
+  State<ResumePage> createState() => _ResumePageState();
 }
 
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
+class _ResumePageState extends State<ResumePage> {
+  final dbHelper = ResumeDatabaseHelper.instance;
 
-class _MyHomePageState extends State<MyHomePage> {
-  final dbHelper = DatabaseHelper.instance;
-
-  List<Car> cars = [];
-  List<Car> carsByName = [];
+  List<ResumeModel> resumeModelList = [];
+  List<ResumeModel> resumeModelByMobile = [];
 
   //controllers used in insert operation UI
-  TextEditingController nameController = TextEditingController();
-  TextEditingController milesController = TextEditingController();
+  TextEditingController fnameController = TextEditingController();
+  TextEditingController lnameController = TextEditingController();
+  TextEditingController mobileController = TextEditingController();
+  TextEditingController ageController = TextEditingController();
+  TextEditingController totalYearsController = TextEditingController();
+  TextEditingController passportNumberController = TextEditingController();
+  TextEditingController maritalStatusController = TextEditingController();
 
   //controllers used in update operation UI
   TextEditingController idUpdateController = TextEditingController();
@@ -45,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController queryController = TextEditingController();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   void _showMessageInScaffold(String message) {
     /* _scaffoldKey.currentState?.showSnackBar(SnackBar(
@@ -60,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          bottom: TabBar(
+          bottom: const TabBar(
             tabs: [
               Tab(
                 text: "Insert",
@@ -79,50 +74,44 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ],
           ),
-          title: Text('TutorialKart - Flutter SQLite Tutorial'),
+          title: Text('Resume Builder'),
         ),
         body: TabBarView(
           children: [
             Center(
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    padding: EdgeInsets.all(20),
-                    child: TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Car Name',
+              child: SingleChildScrollView(
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    children: <Widget>[
+                      setTextField("First name", fnameController),
+                      setTextField("Last name", lnameController),
+                      setTextField("Mobile Number", mobileController),
+                      setTextField("Age", ageController),
+                      setTextField(
+                          "Total No. of Experience", totalYearsController),
+                      setTextField("Passport No.", passportNumberController),
+                      setTextField("Marital Status", maritalStatusController),
+                      ElevatedButton(
+                        child: Text('Insert Details'),
+                        onPressed: () {
+                          if (formKey.currentState?.validate() ?? false) {
+                            formKey.currentState!.save();
+                            _insert();
+                          }
+                        },
                       ),
-                    ),
+                    ],
                   ),
-                  Container(
-                    padding: EdgeInsets.all(20),
-                    child: TextField(
-                      controller: milesController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Car Miles',
-                      ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    child: Text('Insert Car Details'),
-                    onPressed: () {
-                      String name = nameController.text;
-                      int miles = int.parse(milesController.text);
-                      _insert(name, miles);
-                    },
-                  ),
-                ],
+                ),
               ),
             ),
             Container(
               child: ListView.builder(
                 padding: const EdgeInsets.all(8),
-                itemCount: cars.length + 1,
+                itemCount: resumeModelList.length + 1,
                 itemBuilder: (BuildContext context, int index) {
-                  if (index == cars.length) {
+                  if (index == resumeModelList.length) {
                     return ElevatedButton(
                       child: Text('Refresh'),
                       onPressed: () {
@@ -132,15 +121,16 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                     );
                   }
-                  return Container(
+                  return ViewProfile();
+                  /*Container(
                     height: 40,
                     child: Center(
                       child: Text(
-                        '[${cars[index].id}] ${cars[index].name} - ${cars[index].miles} miles',
+                        '[${resumeModelList[index].id}] ${resumeModelList[index].fname} - ${resumeModelList[index].lname}',
                         style: TextStyle(fontSize: 18),
                       ),
                     ),
-                  );
+                  );*/
                 },
               ),
             ),
@@ -153,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       controller: queryController,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        labelText: 'Car Name',
+                        labelText: 'Mobile Number',
                       ),
                       onChanged: (text) {
                         if (text.length >= 2) {
@@ -162,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           });
                         } else {
                           setState(() {
-                            carsByName.clear();
+                            resumeModelByMobile.clear();
                           });
                         }
                       },
@@ -173,14 +163,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     height: 300,
                     child: ListView.builder(
                       padding: const EdgeInsets.all(8),
-                      itemCount: carsByName.length,
+                      itemCount: resumeModelByMobile.length,
                       itemBuilder: (BuildContext context, int index) {
                         return Container(
                           height: 50,
                           margin: EdgeInsets.all(2),
                           child: Center(
                             child: Text(
-                              '[${carsByName[index].id}] ${carsByName[index].name} - ${carsByName[index].miles} miles',
+                              '[${resumeModelByMobile[index].id}] ${resumeModelByMobile[index].fname} - ${resumeModelByMobile[index].lname}',
                               style: TextStyle(fontSize: 18),
                             ),
                           ),
@@ -265,42 +255,65 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _insert(name, miles) async {
+  void _insert() async {
     // row to insert
     Map<String, dynamic> row = {
-      DatabaseHelper.columnName: name,
-      DatabaseHelper.columnMiles: miles
+      ResumeDatabaseHelper.fname: fnameController.text,
+      ResumeDatabaseHelper.lname: lnameController.text,
+      ResumeDatabaseHelper.mobile: mobileController.text,
+      ResumeDatabaseHelper.age: int.parse(ageController.text),
+      ResumeDatabaseHelper.totalYearsOfExperience: totalYearsController.text,
+      ResumeDatabaseHelper.pasportNo: passportNumberController.text,
+      ResumeDatabaseHelper.maritalStatus: maritalStatusController.text,
     };
-    Car car = Car.fromMap(row);
+    ResumeModel resumeModel = ResumeModel.fromMap(row);
     // print(car);
-    final id = await dbHelper.insert(car);
+    final id = await dbHelper.insert(resumeModel);
     _showMessageInScaffold('inserted row id: $id');
   }
 
   void _queryAll() async {
     final allRows = await dbHelper.queryAllRows();
-    cars.clear();
-    allRows.forEach((row) => cars.add(Car.fromMap(row)));
+    resumeModelList.clear();
+    allRows.forEach((row) => resumeModelList.add(ResumeModel.fromMap(row)));
     _showMessageInScaffold('Query done.');
     setState(() {});
   }
 
   void _query(name) async {
     final allRows = await dbHelper.queryRows(name);
-    carsByName.clear();
-    allRows.forEach((row) => carsByName.add(Car.fromMap(row)));
+    resumeModelByMobile.clear();
+    allRows.forEach((row) => resumeModelByMobile.add(ResumeModel.fromMap(row)));
   }
 
-  void _update(id, name, miles) async {
+  void _update(id, fname, lname) async {
     // row to update
-    Car car = Car(id: id, name: name, miles: miles);
+    /*  ResumeModel car = ResumeModel(id: id, fname: fname, lname: lname);
     final rowsAffected = await dbHelper.update(car);
-    _showMessageInScaffold('updated $rowsAffected row(s)');
+    _showMessageInScaffold('updated $rowsAffected row(s)');*/
   }
 
   void _delete(id) async {
     // Assuming that the number of rows is the id for the last row.
     final rowsDeleted = await dbHelper.delete(id);
     _showMessageInScaffold('deleted $rowsDeleted row(s): row $id');
+  }
+
+  Widget setTextField(String caption, TextEditingController controller) {
+    return Container(
+      padding: EdgeInsets.all(15),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(),
+          labelText: caption,
+        ),
+        /* validator: (value) {
+          if (value == "") {
+            return "$caption should not be empty";
+          }
+        },*/
+      ),
+    );
   }
 }
